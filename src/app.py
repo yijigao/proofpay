@@ -17,8 +17,9 @@ STATE = {}  # task_id -> {status, generated, results, decision, tamper}
 
 CSS = "body{font-family:system-ui;max-width:760px;margin:40px auto;padding:0 16px;color:#14213d}h1{font-size:24px}.card{border:1px solid #ddd;border-radius:12px;padding:20px;margin:16px 0}.ok{color:#0a7d2c}.bad{color:#c0392b}.light{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px}button{background:#0070e0;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:15px;cursor:pointer}code{background:#f2f2f2;padding:2px 6px;border-radius:4px}.muted{color:#666;font-size:13px}"
 
+BANNER = "<p class=muted style='border:1px dashed #999;border-radius:8px;padding:8px 12px'><b>Local demo</b> — this run executes on your machine; no live charge happens here. The payment evidence behind it comes from a separately verified PayPal sandbox run (2026-10-09).</p>"
 def page(title, body):
-    return f"<!doctype html><html lang=en><meta charset=utf-8><title>{title} · ProofPay</title><style>{CSS}</style><h1>ProofPay</h1>{body}</html>".encode()
+    return f"<!doctype html><html lang=en><meta charset=utf-8><title>{title} · ProofPay</title><style>{CSS}</style><h1>ProofPay</h1>{BANNER}{body}</html>".encode()
 
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
@@ -52,12 +53,12 @@ class H(BaseHTTPRequestHandler):
             if st["status"] == "CAPTURED":
                 body = f"""<div class=card><h2>3 · Payment receipt</h2><p class=ok><b>Paid ${TASK['amount']['value']} {TASK['amount']['currency']}</b> — capture COMPLETED</p>
                 <p>Task <code>{tid}</code> · the brief passed all 9 checks, so the frozen authorization was captured.</p>
-                <p class=muted>Sandbox-verified flow (2026-10-09): authorize 201 → capture 201 COMPLETED.</p></div>"""
+                <p class=muted>Payment evidence (separate PayPal sandbox run, 2026-10-09): authorize 201 → capture 201 COMPLETED. This local demo run did not move money.</p></div>"""
             else:
                 fails = ", ".join(k for k, v in st["results"] if not v)
                 body = f"""<div class=card><h2>3 · Authorization voided</h2><p class=bad><b>You pay $0.00</b> — authorization VOIDED</p>
                 <p>Task <code>{tid}</code> · failed checks: <b>{html.escape(fails)}</b>. The frozen funds were released; no capture happened.</p>
-                <p class=muted>Sandbox-verified flow (2026-10-09): authorize 201 → void 204 → VOIDED.</p></div>"""
+                <p class=muted>Payment evidence (separate PayPal sandbox run, 2026-10-09): authorize 201 → void 204 → VOIDED. This local demo run did not move money.</p></div>"""
             body += "<p><a href='/'>← New order</a></p>"
             self.send_html(body, "Receipt")
         else:
