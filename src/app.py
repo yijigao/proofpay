@@ -11,9 +11,26 @@ from check import check
 from generate import generate
 
 BASE = os.path.join(os.path.dirname(__file__), "..")
-TASK = json.load(open(os.path.join(BASE, "examples/task.json")))
-SNAP = json.load(open(os.path.join(BASE, "examples/snapshot.json")))
-STATE = {}  # task_id -> {status, generated, results, decision, tamper}
+STATE = {}  # order_id -> {task, snap, status, generated, results, decision, tamper}
+
+def fresh_fixture():
+    """Build the demo task+snapshot relative to NOW so the 24h freshness window
+    and deadline never expire (Dec judging included). Nine checks unchanged."""
+    import uuid
+    from datetime import datetime, timedelta, timezone
+    now = datetime.now(timezone.utc)
+    fmt = "%Y-%m-%dT%H:%M:%SZ"
+    seen = (now - timedelta(minutes=30)).strftime(fmt)
+    snap = {"snapshot_id": "snap-live", "taken_at_utc": (now - timedelta(minutes=25)).strftime(fmt),
+            "source": "pricescout-feed", "feed_version": "1",
+            "items": [
+                {"sku": "A1", "title": "Wireless Earbuds", "price_old": "59.99", "price_new": "39.99", "currency": "USD", "url": "https://example.com/a1", "seen_at_utc": seen},
+                {"sku": "B2", "title": "USB-C Hub", "price_old": "45.00", "price_new": "29.50", "currency": "USD", "url": "https://example.com/b2", "seen_at_utc": seen}]}
+    task = {"task_id": "pp-" + uuid.uuid4().hex[:10], "buyer_ref": "demo-buyer", "service_type": "deal_brief",
+            "snapshot_id": "snap-live", "amount": {"value": "10.00", "currency": "USD"},
+            "deadline_utc": (now + timedelta(days=1)).strftime(fmt),
+            "deliverable_spec": {"item_count": 2, "max_chars": 400, "generator_version": "gen-1.0"}}
+    return task, snap
 
 CSS = "body{font-family:system-ui;max-width:760px;margin:40px auto;padding:0 16px;color:#14213d}h1{font-size:24px}.card{border:1px solid #ddd;border-radius:12px;padding:20px;margin:16px 0}.ok{color:#0a7d2c}.bad{color:#c0392b}.light{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:8px}button{background:#0070e0;color:#fff;border:0;border-radius:8px;padding:10px 18px;font-size:15px;cursor:pointer}code{background:#f2f2f2;padding:2px 6px;border-radius:4px}.muted{color:#666;font-size:13px}"
 
@@ -29,7 +46,7 @@ class H(BaseHTTPRequestHandler):
     def do_GET(self):
         u = urlparse(self.path); q = parse_qs(u.query)
         if u.path == "/":
-            t = TASK
+            t, SNAP = fresh_fixture()
             body = f"""<div class=card><h2>1 · Order &amp; freeze</h2>
             <p>Service: <b>AI deal brief</b> from PriceScout snapshot <code>{t['snapshot_id']}</code> ({len(SNAP['items'])} items)</p>
             <p>Amount: <b>${t['amount']['value']} {t['amount']['currency']}</b> · Deliverable: {t['deliverable_spec']['item_count']} items, ≤{t['deliverable_spec']['max_chars']} chars</p>
@@ -45,13 +62,15 @@ class H(BaseHTTPRequestHandler):
             body = f"""<div class=card><h2>2 · Generated brief &amp; verification</h2>
             <p><i>{html.escape(st['generated']['text'])}</i></p>{lights}
             <p>Decision: <b class={'ok' if dec=='CAPTURE' else 'bad'}>{'9/9 passed → CAPTURE' if dec=='CAPTURE' else 'A check failed → VOID (you pay nothing)'}</b></p>
-            <form method=post action=/settle?task={tid}><button>{'Capture $'+TASK['amount']['value'] if dec=='CAPTURE' else 'Void authorization'}</button></form></div>"""
+            <form method=post action=/settle?task={tid}><button>{'Capture $'+st['task']['amount']['value'] if dec=='CAPTURE' else 'Void authorization'}</button></form></div>"""
             self.send_html(body, "Review")
         elif u.path == "/receipt":
             tid = q.get("task", [""])[0]; st = STATE.get(tid)
             if not st: self.send_html("<p>Unknown task.</p>"); return
-            if st["status"] == "CAPTURED":
-                body = f"""<div class=card><h2>3 · Payment receipt</h2><p class=ok><b>Paid ${TASK['amount']['value']} {TASK['amount']['currency']}</b> — capture COMPLETED</p>
+            if st["status"] == "AUTHORIZED":
+                body = f"""<div class=card><h2>3 · Not settled yet</h2><p>This order is still frozen (AUTHORIZED). Go back to the <a href='/review?task={tid}'>verification page</a> to capture or void it.</p></div>"""
+            elif st["status"] == "CAPTURED":
+                body = f"""<div class=card><h2>3 · Payment receipt</h2><p class=ok><b>Paid ${st['task']['amount']['value']} {st['task']['amount']['currency']}</b> — capture COMPLETED</p>
                 <p>Task <code>{tid}</code> · the brief passed all 9 checks, so the frozen authorization was captured.</p>
                 <p class=muted>Payment evidence (separate PayPal sandbox run, 2026-10-09): authorize 201 → capture 201 COMPLETED. This local demo run did not move money.</p></div>"""
             else:
@@ -67,12 +86,13 @@ class H(BaseHTTPRequestHandler):
         u = urlparse(self.path); q = parse_qs(u.query)
         length = int(self.headers.get("Content-Length", 0)); form = parse_qs(self.rfile.read(length).decode())
         if u.path == "/order":
-            tid = TASK["task_id"]
+            task, snap = fresh_fixture()
+            tid = task["task_id"]
             tamper = form.get("tamper", [""])[0] == "1"
-            gen = generate(TASK, SNAP, tamper_price=tamper)
-            results = check(TASK, SNAP, gen)
+            gen = generate(task, snap, tamper_price=tamper)
+            results = check(task, snap, gen)
             decision = "CAPTURE" if all(v for _, v in results) else "VOID"
-            STATE[tid] = {"status": "AUTHORIZED", "generated": gen, "results": results, "decision": decision, "tamper": tamper}
+            STATE[tid] = {"task": task, "snap": snap, "status": "AUTHORIZED", "generated": gen, "results": results, "decision": decision, "tamper": tamper}
             self.send_response(303); self.send_header("Location", f"/review?task={tid}"); self.end_headers()
         elif u.path == "/settle":
             tid = q.get("task", [""])[0]; st = STATE.get(tid)
@@ -84,4 +104,4 @@ class H(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", "8080"))
     print(f"ProofPay demo on http://127.0.0.1:{port}")
-    HTTPServer(("127.0.0.1", port), H).serve_forever()
+    HTTPServer(("0.0.0.0", port), H).serve_forever()
