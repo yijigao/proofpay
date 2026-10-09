@@ -1,2 +1,6 @@
 .env
 __pycache__/
+video/clips/
+video/*.mp4
+video/*.mp3
+video/frame*.png
