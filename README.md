@@ -53,3 +53,5 @@ Data snapshot format comes from the PriceScout price-feed pipeline; the nine-che
 framework generalises the rule-gate pattern used in our opportunity-scanning systems.
 
 License: MIT (see LICENSE).
+
+Third-party and reuse declarations: see THIRD-PARTY-NOTICES.md.
