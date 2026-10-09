@@ -1,7 +1,7 @@
 # Devpost submission fields (ready to paste; Joey submits from his own account)
 
 - Project name: ProofPay
-- Elevator pitch: Escrow for AI work — funds frozen first, captured only when nine objective checks pass; any failure voids and the buyer pays $0.
+- Elevator pitch: Escrow for AI work — funds frozen first, captured only when nine objective checks pass; any failure voids and the buyer pays $0. (v1 gaps: live-order amount binding not yet verified; task uniqueness and generator version are self-reported without a trusted log.)
 - Built with: PayPal sandbox (Orders v2 + Payments v2), Python, PriceScout feed format
 - Text description: see SUBMISSION.md (problem / solution / why it matters / tech / honest scope / AI tools disclosure)
 - Demo: run it yourself from the public repo (verified zero-credential): ① `git clone https://github.com/yijigao/proofpay` ② `python3 src/app.py` ③ open http://127.0.0.1:8080 — complete both endings (all-green capture, fault-injected void). A hosted HF Space may be added before submission as a bonus; the self-run path is the official demo.
