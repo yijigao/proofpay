@@ -1,0 +1,1 @@
+{"task_id":"pp-20261009-001","buyer_ref":"demo-buyer","service_type":"deal_brief","snapshot_id":"snap-001","amount":{"value":"10.00","currency":"USD"},"deadline_utc":"2026-10-10T00:00:00Z","deliverable_spec":{"item_count":2,"max_chars":400,"generator_version":"gen-1.0"}}
