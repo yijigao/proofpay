@@ -22,7 +22,7 @@ Payment flows verified end-to-end in the PayPal sandbox (test money only):
 authorize 201 → capture 201 COMPLETED; authorize 201 → void 204 VOIDED.
 
 Open source (MIT). Judges can run the demo with no credentials:
-[GitHub repo URL to be added after publishing]
+https://github.com/yijigao/proofpay
 
 Built for the PayPal AI Hackathon — Best Use of Agentic Commerce.
 AI tools used: Claude/GPT-class coding agents (implementation assistance).

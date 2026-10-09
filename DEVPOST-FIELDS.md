@@ -5,7 +5,7 @@
 - Built with: PayPal sandbox (Orders v2 + Payments v2), Python, PriceScout feed format
 - Text description: see SUBMISSION.md (problem / solution / why it matters / tech / honest scope / AI tools disclosure)
 - Demo: repo README self-run instructions (no credentials needed); optional hosted URL later
-- Repo URL: [to fill after GitHub publish — must be public with MIT LICENSE at root]
+- Repo URL: https://github.com/yijigao/proofpay
 - Video: [YouTube public link after Joey uploads proofpay-demo.mp4]
 - Try it out: python3 src/app.py → http://127.0.0.1:8080 ; offline checker commands in README
 - Category/track interest: Best Use of Agentic Commerce
