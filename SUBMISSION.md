@@ -33,9 +33,10 @@ that can be checked objectively before money moves.
   offline checker CLI. Snapshot format reuses the PriceScout feed.
 
 ## Honest scope
-Amount-to-live-order binding, cross-task id uniqueness, and generator-version
-authenticity are noted as v1 gaps in the README — we show exactly what is verified
-and what is not.
+Gaps: live-order amount binding; cross-task uniqueness and generator-version
+authenticity rely on self-reported values without a trusted execution log.
+The demo video is a local simulation that mirrors separate sandbox API tests;
+no money moves on screen. We show exactly what is verified and what is not.
 
 ## AI tools used
 Muse / GPT-class coding agents for implementation assistance (disclosed per rules).

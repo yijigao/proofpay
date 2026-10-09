@@ -46,7 +46,7 @@ Never commit credentials.
 - Task-id uniqueness across tasks and generator-version authenticity rely on self-reported
   values in this demo; no trusted execution log yet.
 - The web demo runs the payment state machine in demo mode, mirroring the sandbox
-  responses verified above.
+  responses verified above. The two are separate: demo runs move no money.
 
 ## Reuse
 Data snapshot format comes from the PriceScout price-feed pipeline; the nine-check
