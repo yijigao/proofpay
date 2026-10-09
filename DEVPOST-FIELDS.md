@@ -4,7 +4,7 @@
 - Elevator pitch: Escrow for AI work — funds frozen first, captured only when nine objective checks pass; any failure voids and the buyer pays $0.
 - Built with: PayPal sandbox (Orders v2 + Payments v2), Python, PriceScout feed format
 - Text description: see SUBMISSION.md (problem / solution / why it matters / tech / honest scope / AI tools disclosure)
-- Demo: repo README self-run instructions (no credentials needed); optional hosted URL later
+- Demo: run it yourself from the public repo (verified zero-credential): ① `git clone https://github.com/yijigao/proofpay` ② `python3 src/app.py` ③ open http://127.0.0.1:8080 — complete both endings (all-green capture, fault-injected void). A hosted HF Space may be added before submission as a bonus; the self-run path is the official demo.
 - Repo URL: https://github.com/yijigao/proofpay
 - Video: [YouTube public link after Joey uploads proofpay-demo.mp4]
 - Try it out: python3 src/app.py → http://127.0.0.1:8080 ; offline checker commands in README

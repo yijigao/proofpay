@@ -1,8 +1,13 @@
 # Hosted demo plan (for the Judging Period 2026-12-01 → 12-15)
 
+**Decision (2026-10-09, Joey approved via main chat):** the official demo path
+is the **public repo + complete self-run instructions** (verified zero-credential).
+A paid HF Space is an optional bonus near submission only (open it if a PRO plan
+is handy; skipping it costs nothing).
+
 **Correction (2026-10-09, per dispatch-desk precheck):** Hugging Face *Docker*
 Spaces require a paid plan — the earlier "free, no card" assumption was wrong.
-The hosting route is therefore **pending Joey's decision**; options:
+Options kept for the record:
 
 | Option | Cost | Card | Notes |
 |---|---|---|---|
